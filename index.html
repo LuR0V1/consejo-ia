@@ -2,977 +2,1219 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0F1117">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Consejo IA">
-<meta name="theme-color" content="#080810">
-<title>Consejo IA</title>
+<title>Consejo de IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #0F1117;
+    --surface: #161B2E;
+    --surface2: #1E2540;
+    --border: #2A3158;
+    --amber: #F59E0B;
+    --amber-dim: rgba(245,158,11,0.12);
+    --amber-glow: rgba(245,158,11,0.25);
+    --indigo: #6366F1;
+    --indigo-dim: rgba(99,102,241,0.12);
+    --green: #10B981;
+    --green-dim: rgba(16,185,129,0.12);
+    --red: #EF4444;
+    --text: #E8EAF0;
+    --text-muted: #7B8199;
+    --text-dim: #4A5170;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-:root {
-  --bg:       #080810;
-  --surface:  #0f0f1a;
-  --card:     #13131f;
-  --border:   #1c1c2e;
-  --border2:  #252538;
-  --text:     #e2e2f0;
-  --muted:    #5a5a78;
-  --dim:      #2e2e48;
-  --accent:   #7c6af7;
-  --accent2:  #5b4de0;
-  --green:    #22c55e;
-  --r: 10px;
-  --rs: 7px;
-}
+  /* ── HEADER ── */
+  header {
+    padding: 20px 24px 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .logo-mark {
+    width: 42px; height: 42px;
+    background: var(--amber-dim);
+    border: 1px solid var(--amber);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px; font-weight: 700;
+    color: var(--amber);
+    flex-shrink: 0;
+  }
+  .logo-text h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px; font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+  .logo-text span {
+    font-size: 11px; color: var(--text-muted);
+    font-weight: 400; letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .header-right { margin-left: auto; display: flex; gap: 8px; }
+  .btn-icon {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    transition: all .2s;
+  }
+  .btn-icon:hover { border-color: var(--amber); color: var(--amber); }
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 15px;
-  line-height: 1.55;
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-}
+  /* ── DOMAIN SELECTOR ── */
+  .domain-bar {
+    padding: 16px 24px 0;
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .domain-pill {
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    font-size: 13px; font-weight: 500;
+    cursor: pointer;
+    transition: all .2s;
+    font-family: 'Inter', sans-serif;
+    white-space: nowrap;
+  }
+  .domain-pill:hover { border-color: var(--amber); color: var(--amber); }
+  .domain-pill.active {
+    background: var(--amber-dim);
+    border-color: var(--amber);
+    color: var(--amber);
+  }
+  .domain-pill .emoji { margin-right: 5px; }
 
-/* ── HEADER ── */
-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg);
-  position: sticky;
-  top: 0;
-  z-index: 50;
-}
-.logo { display: flex; align-items: center; gap: 9px; }
-.logo-icon {
-  width: 30px; height: 30px;
-  background: linear-gradient(135deg, var(--accent), #c084fc);
-  border-radius: 7px;
-  display: grid; place-items: center;
-  font-size: 15px;
-}
-.logo h1 { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
-.logo h1 em { font-style: normal; color: var(--muted); font-weight: 400; }
+  /* ── MAIN LAYOUT ── */
+  .main { padding: 20px 24px; display: flex; flex-direction: column; gap: 20px; }
 
-.hdr-actions { display: flex; gap: 8px; }
-.btn-icon {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--muted);
-  border-radius: var(--rs);
-  padding: 6px 11px;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all .15s;
-  white-space: nowrap;
-}
-.btn-icon:hover { border-color: var(--border2); color: var(--text); }
+  /* ── QUERY BOX ── */
+  .query-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+  }
+  .query-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px; font-weight: 600;
+    color: var(--amber);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .query-label::after {
+    content: '';
+    flex: 1; height: 1px;
+    background: var(--border);
+  }
+  .query-box {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color .2s;
+  }
+  .query-box:focus { outline: none; border-color: var(--amber); }
+  .query-box::placeholder { color: var(--text-dim); }
+  .context-hint {
+    margin-top: 8px;
+    font-size: 12px; color: var(--text-dim);
+    padding: 8px 12px;
+    background: var(--surface2);
+    border-radius: 6px;
+    border-left: 2px solid var(--indigo);
+    display: none;
+  }
+  .context-hint.show { display: block; }
 
-/* ── MAIN ── */
-main {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px 14px 140px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
+  /* ── API KEY BANNER ── */
+  .api-banner {
+    background: var(--indigo-dim);
+    border: 1px solid var(--indigo);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    display: flex; align-items: center; gap: 10px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .api-banner span { font-size: 12px; color: var(--text-muted); flex: 1; min-width: 200px; }
+  .api-input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: var(--text);
+    font-size: 12px;
+    font-family: monospace;
+    width: 200px;
+    transition: border-color .2s;
+  }
+  .api-input:focus { outline: none; border-color: var(--indigo); }
 
-/* ── EMPTY STATE ── */
-.empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  min-height: 55vh;
-  gap: 10px;
-  padding: 32px 20px;
-}
-.empty-glyph { font-size: 38px; margin-bottom: 4px; opacity: .5; }
-.empty h2 { font-size: 19px; font-weight: 700; letter-spacing: -.3px; }
-.empty p { font-size: 14px; color: var(--muted); max-width: 260px; line-height: 1.6; }
-.empty-steps {
-  margin-top: 16px;
-  text-align: left;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;
-  max-width: 300px;
-}
-.step { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--muted); }
-.step-n {
-  width: 20px; height: 20px;
-  background: var(--dim);
-  border-radius: 50%;
-  display: grid; place-items: center;
-  font-size: 11px; font-weight: 700;
-  color: var(--accent);
-  flex-shrink: 0;
-  margin-top: 1px;
-}
+  /* ── PANEL GRID ── */
+  .panels-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px; font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 1px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .panels-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-/* ── SESSION ── */
-.session {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-  overflow: hidden;
-}
+  .panels-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
 
-.session-q {
-  padding: 13px 15px;
-  border-bottom: 1px solid var(--border);
-  background: linear-gradient(135deg, #0f0f1e, #13132a);
-}
-.session-q-label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .09em;
-  text-transform: uppercase;
-  color: var(--dim);
-  margin-bottom: 5px;
-}
-.session-q-text {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text);
-}
+  /* ── AI PANEL CARD ── */
+  .ai-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+  .ai-card.has-response { border-color: rgba(99,102,241,0.4); }
+  .ai-card.auto-fetch { border-color: rgba(245,158,11,0.3); }
+  .ai-card-header {
+    padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .ai-orb {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    flex-shrink: 0;
+    position: relative;
+  }
+  .ai-orb.idle { background: var(--text-dim); }
+  .ai-orb.fetching {
+    background: var(--amber);
+    animation: pulse-orb 1s infinite;
+  }
+  .ai-orb.done { background: var(--green); }
+  .ai-orb.error { background: var(--red); }
+  .ai-orb.manual { background: var(--indigo); }
+  @keyframes pulse-orb {
+    0%, 100% { box-shadow: 0 0 0 0 var(--amber-glow); }
+    50% { box-shadow: 0 0 0 6px transparent; }
+  }
+  .ai-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px; font-weight: 600;
+    color: var(--text);
+    flex: 1;
+  }
+  .ai-badge {
+    font-size: 10px; padding: 2px 7px;
+    border-radius: 10px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .badge-auto { background: var(--amber-dim); color: var(--amber); border: 1px solid var(--amber); }
+  .badge-manual { background: var(--indigo-dim); color: var(--indigo); border: 1px solid var(--indigo); }
+  .ai-card-body { padding: 12px 14px; }
+  .ai-textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    resize: vertical;
+    min-height: 110px;
+    line-height: 1.5;
+    transition: border-color .2s;
+  }
+  .ai-textarea:focus { outline: none; border-color: var(--indigo); }
+  .ai-textarea::placeholder { color: var(--text-dim); font-size: 12px; }
+  .ai-textarea[readonly] { color: var(--text-muted); cursor: default; }
+  .ai-status {
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--text-dim);
+    min-height: 16px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .ai-status.fetching-txt { color: var(--amber); }
+  .ai-status.done-txt { color: var(--green); }
+  .ai-status.error-txt { color: var(--red); }
 
-/* ── MODEL SLOT ── */
-.slot {
-  border-bottom: 1px solid var(--border);
-}
-.slot:last-child { border-bottom: none; }
+  /* ── WEIGHT SLIDER ── */
+  .weight-row {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 8px;
+  }
+  .weight-label { font-size: 11px; color: var(--text-dim); white-space: nowrap; }
+  .weight-slider {
+    -webkit-appearance: none;
+    flex: 1; height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+  }
+  .weight-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--indigo);
+    cursor: pointer;
+  }
+  .weight-val {
+    font-size: 11px; color: var(--indigo);
+    font-weight: 600; min-width: 20px;
+    text-align: right;
+  }
 
-.slot-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 11px 15px;
-  cursor: pointer;
-  user-select: none;
-  gap: 10px;
-}
-.slot-left { display: flex; align-items: center; gap: 9px; }
-.model-tag {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .05em;
-  text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: 5px;
-}
-.slot-status {
-  font-size: 12px;
-  color: var(--muted);
-}
-.slot-status.filled { color: var(--green); }
+  /* ── ADD AI BUTTON ── */
+  .add-ai-btn {
+    background: transparent;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    color: var(--text-dim);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .2s;
+    font-family: 'Inter', sans-serif;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%;
+  }
+  .add-ai-btn:hover { border-color: var(--indigo); color: var(--indigo); }
 
-.slot-chevron {
-  font-size: 11px;
-  color: var(--muted);
-  transition: transform .2s;
-}
-.slot.open .slot-chevron { transform: rotate(180deg); }
+  /* ── ACTION BAR ── */
+  .action-bar {
+    display: flex; gap: 10px; flex-wrap: wrap;
+  }
+  .btn-primary {
+    background: var(--amber);
+    color: #0F1117;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 12px 22px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px; font-weight: 700;
+    cursor: pointer;
+    transition: all .2s;
+    letter-spacing: 0.2px;
+  }
+  .btn-primary:hover { background: #FBBF24; transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 18px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .btn-secondary:hover { border-color: var(--text-muted); color: var(--text); }
 
-.slot-body {
-  display: none;
-  padding: 0 15px 14px;
-}
-.slot.open .slot-body { display: block; }
+  /* ── SYNTHESIS ── */
+  .synthesis-card {
+    background: linear-gradient(135deg, #1E1B4B 0%, #161B2E 100%);
+    border: 1px solid rgba(99,102,241,0.5);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: none;
+  }
+  .synthesis-card.show { display: block; }
+  .synthesis-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(99,102,241,0.3);
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(99,102,241,0.08);
+  }
+  .synthesis-icon {
+    width: 32px; height: 32px;
+    background: var(--indigo-dim);
+    border: 1px solid var(--indigo);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+  }
+  .synthesis-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px; font-weight: 700;
+    color: var(--indigo);
+    flex: 1;
+  }
+  .synthesis-meta { font-size: 11px; color: var(--text-dim); }
+  .synthesis-body { padding: 18px; }
+  .synthesis-text {
+    font-size: 14px; line-height: 1.7;
+    color: var(--text);
+    white-space: pre-wrap;
+  }
+  .synthesis-loading {
+    display: flex; align-items: center; gap: 10px;
+    color: var(--text-muted); font-size: 13px;
+    padding: 12px 0;
+  }
+  .dot-blink { animation: blink 1.4s infinite both; }
+  .dot-blink:nth-child(2) { animation-delay: .2s; }
+  .dot-blink:nth-child(3) { animation-delay: .4s; }
+  @keyframes blink { 0%,80%,100%{opacity:.2} 40%{opacity:1} }
+  .consensus-bar {
+    display: flex; gap: 6px; margin-top: 14px; flex-wrap: wrap;
+  }
+  .consensus-tag {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px; font-weight: 600;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .tag-agree { background: var(--green-dim); color: var(--green); border: 1px solid var(--green); }
+  .tag-split { background: var(--amber-dim); color: var(--amber); border: 1px solid var(--amber); }
+  .tag-diverge { background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid var(--red); }
 
-.slot-paste-area {
-  width: 100%;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--rs);
-  color: var(--text);
-  font-family: inherit;
-  font-size: 13px;
-  line-height: 1.55;
-  padding: 10px 12px;
-  resize: none;
-  min-height: 100px;
-  outline: none;
-  transition: border-color .2s;
-}
-.slot-paste-area:focus { border-color: var(--border2); }
-.slot-paste-area::placeholder { color: var(--dim); }
+  /* ── HISTORY ── */
+  .history-section { display: none; }
+  .history-section.show { display: block; }
+  .history-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: border-color .2s;
+  }
+  .history-item:hover { border-color: var(--amber); }
+  .history-domain { font-size: 11px; color: var(--amber); font-weight: 600; margin-bottom: 3px; }
+  .history-query { font-size: 13px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .history-date { font-size: 11px; color: var(--text-dim); margin-top: 3px; }
 
-.slot-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}
-.btn-sm {
-  padding: 7px 13px;
-  border-radius: var(--rs);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  border: 1px solid transparent;
-  transition: all .15s;
-}
-.btn-save-resp {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
-}
-.btn-save-resp:hover { background: var(--accent2); }
-.btn-clear-resp {
-  background: transparent;
-  color: var(--muted);
-  border-color: var(--border2);
-}
-.btn-clear-resp:hover { color: var(--text); }
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    max-width: 480px; width: 100%;
+    max-height: 90vh; overflow-y: auto;
+  }
+  .modal h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px; font-weight: 700;
+    margin-bottom: 16px; color: var(--text);
+  }
+  .modal-field { margin-bottom: 14px; }
+  .modal-field label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+  .modal-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    transition: border-color .2s;
+  }
+  .modal-input:focus { outline: none; border-color: var(--amber); }
+  .modal-select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
 
-/* ── ANALYZE SECTION ── */
-.analyze-bar {
-  padding: 12px 15px;
-  border-top: 1px solid var(--border);
-  background: #0c0c18;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-.analyze-count {
-  font-size: 12px;
-  color: var(--muted);
-}
-.btn-analyze {
-  padding: 9px 16px;
-  background: var(--accent);
-  color: white;
-  border: none;
-  border-radius: var(--rs);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background .15s;
-  white-space: nowrap;
-}
-.btn-analyze:hover { background: var(--accent2); }
-.btn-analyze:disabled { background: var(--dim); color: var(--muted); cursor: not-allowed; }
+  /* ── SETTINGS PANEL ── */
+  .settings-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    display: none;
+  }
+  .settings-panel.show { display: block; }
+  .settings-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-label { font-size: 13px; color: var(--text); }
+  .settings-hint { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .toggle {
+    width: 40px; height: 22px;
+    background: var(--border);
+    border-radius: 11px;
+    position: relative;
+    cursor: pointer;
+    transition: background .2s;
+    border: none;
+    flex-shrink: 0;
+  }
+  .toggle.on { background: var(--amber); }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: white;
+    top: 3px; left: 3px;
+    transition: transform .2s;
+  }
+  .toggle.on::after { transform: translateX(18px); }
 
-/* ── ANALYSIS RESULT ── */
-.analysis-block {
-  border-top: 1px solid var(--border);
-  padding: 14px 15px;
-  background: #0a0a16;
-}
-.analysis-label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .09em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.analysis-text {
-  font-size: 13px;
-  line-height: 1.65;
-  color: #c8c8e0;
-  white-space: pre-wrap;
-}
-.analysis-loading {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--muted);
-  font-style: italic;
-}
-.dots span {
-  display: inline-block;
-  width: 4px; height: 4px;
-  border-radius: 50%;
-  background: var(--muted);
-  animation: blink 1.2s ease-in-out infinite;
-  margin: 0 1px;
-}
-.dots span:nth-child(2) { animation-delay: .2s; }
-.dots span:nth-child(3) { animation-delay: .4s; }
-@keyframes blink {
-  0%,60%,100% { opacity:.3; transform:translateY(0); }
-  30% { opacity:1; transform:translateY(-3px); }
-}
+  /* ── GEMINI KEY SETUP ── */
+  .setup-banner {
+    background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(99,102,241,0.08));
+    border: 1px solid var(--amber);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .setup-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+  .setup-text h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px; font-weight: 700; color: var(--amber);
+    margin-bottom: 4px;
+  }
+  .setup-text p { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+  .setup-input-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .setup-input {
+    flex: 1; min-width: 180px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-family: monospace;
+    font-size: 12px;
+  }
+  .setup-input:focus { outline: none; border-color: var(--amber); }
+  .btn-save-key {
+    background: var(--amber);
+    color: #0F1117;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px; font-weight: 700;
+    cursor: pointer;
+  }
 
-/* ── INPUT BAR ── */
-.input-bar {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  background: var(--bg);
-  border-top: 1px solid var(--border);
-  padding: 11px 14px 22px;
-  z-index: 50;
-}
-.input-row {
-  display: flex;
-  gap: 9px;
-  align-items: flex-end;
-}
-textarea#qi {
-  flex: 1;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--text);
-  font-family: inherit;
-  font-size: 15px;
-  line-height: 1.4;
-  padding: 10px 13px;
-  border-radius: var(--r);
-  resize: none;
-  min-height: 44px;
-  max-height: 110px;
-  outline: none;
-  transition: border-color .2s;
-}
-textarea#qi:focus { border-color: var(--border2); }
-textarea#qi::placeholder { color: var(--dim); }
-.btn-send {
-  width: 44px; height: 44px;
-  background: var(--accent);
-  border: none;
-  border-radius: var(--r);
-  color: white;
-  font-size: 19px;
-  cursor: pointer;
-  display: grid; place-items: center;
-  flex-shrink: 0;
-  transition: background .15s;
-}
-.btn-send:hover { background: var(--accent2); }
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    header { padding: 16px 16px 0; }
+    .domain-bar { padding: 12px 16px 0; gap: 6px; }
+    .main { padding: 14px 16px; gap: 14px; }
+    .panels-grid { grid-template-columns: 1fr; }
+    .btn-primary { flex: 1; }
+    .action-bar { flex-direction: row; }
+  }
+  @media (min-width: 900px) {
+    .panels-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1300px) {
+    .panels-grid { grid-template-columns: repeat(3, 1fr); }
+  }
 
-/* ── MODAL ── */
-.overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.75);
-  z-index: 100;
-  align-items: flex-end;
-  justify-content: center;
-}
-.overlay.open { display: flex; }
-.modal {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r) var(--r) 0 0;
-  width: 100%;
-  max-width: 520px;
-  padding: 22px 18px 36px;
-  animation: up .22s ease;
-}
-@keyframes up { from { transform: translateY(100%); } to { transform: translateY(0); } }
-.modal h2 { font-size: 16px; font-weight: 700; margin-bottom: 18px; }
+  /* ── COPY BTN ── */
+  .copy-btn {
+    background: none; border: none;
+    color: var(--text-dim); font-size: 11px;
+    cursor: pointer; padding: 4px 6px;
+    border-radius: 4px;
+    transition: color .15s;
+  }
+  .copy-btn:hover { color: var(--indigo); }
 
-/* models manager */
-.model-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
-.model-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--rs);
-  padding: 9px 11px;
-}
-.model-row input[type="text"] {
-  flex: 1;
-  background: transparent;
-  border: none;
-  color: var(--text);
-  font-family: inherit;
-  font-size: 14px;
-  outline: none;
-  min-width: 0;
-}
-.model-row input[type="text"]::placeholder { color: var(--dim); }
-.color-dot {
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.btn-del {
-  background: transparent;
-  border: none;
-  color: var(--muted);
-  font-size: 16px;
-  cursor: pointer;
-  padding: 2px 4px;
-  line-height: 1;
-  transition: color .15s;
-}
-.btn-del:hover { color: #f55; }
-
-.btn-add-model {
-  width: 100%;
-  padding: 9px;
-  background: transparent;
-  border: 1px dashed var(--border2);
-  color: var(--muted);
-  border-radius: var(--rs);
-  font-size: 13px;
-  cursor: pointer;
-  transition: all .15s;
-  margin-bottom: 18px;
-}
-.btn-add-model:hover { border-color: var(--accent); color: var(--accent); }
-
-.modal-row { display: flex; gap: 9px; }
-.btn-primary {
-  flex: 1;
-  padding: 11px;
-  background: var(--accent);
-  border: none;
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
-  border-radius: var(--rs);
-  cursor: pointer;
-  transition: background .15s;
-}
-.btn-primary:hover { background: var(--accent2); }
-.btn-secondary {
-  padding: 11px 18px;
-  background: transparent;
-  border: 1px solid var(--border2);
-  color: var(--muted);
-  font-size: 14px;
-  border-radius: var(--rs);
-  cursor: pointer;
-}
-
-/* ── TOAST ── */
-.toast {
-  position: fixed;
-  bottom: 90px; left: 50%;
-  transform: translateX(-50%);
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  color: var(--text);
-  font-size: 13px;
-  padding: 9px 18px;
-  border-radius: 20px;
-  z-index: 200;
-  opacity: 0;
-  transition: opacity .25s;
-  pointer-events: none;
-  white-space: nowrap;
-}
-.toast.show { opacity: 1; }
-
-/* color palette for auto-assign */
+  /* Divider */
+  .divider {
+    height: 1px; background: var(--border);
+    margin: 4px 0;
+  }
 </style>
 </head>
 <body>
 
+<!-- ── HEADER ── -->
 <header>
-  <div class="logo">
-    <div class="logo-icon">⚖️</div>
-    <h1>Consejo <em>IA</em></h1>
+  <div class="logo-mark">⚖</div>
+  <div class="logo-text">
+    <h1>Consejo de IA</h1>
+    <span>Panel de Consenso Universal</span>
   </div>
-  <div class="hdr-actions">
-    <button class="btn-icon" onclick="openModels()">⚙ Modelos</button>
+  <div class="header-right">
+    <button class="btn-icon" onclick="toggleHistory()">📋 Historial</button>
+    <button class="btn-icon" onclick="toggleSettings()">⚙</button>
   </div>
 </header>
 
-<main id="main">
-  <div class="empty" id="emptyState">
-    <div class="empty-glyph">⚖️</div>
-    <h2>Tu consejo personal</h2>
-    <p>Escribe una pregunta, cópiala en cada IA, pega las respuestas aquí y obtén un análisis comparativo.</p>
-    <div class="empty-steps">
-      <div class="step"><div class="step-n">1</div><span>Escribe tu pregunta abajo</span></div>
-      <div class="step"><div class="step-n">2</div><span>Cópiala y pégala en cada IA (Claude, ChatGPT, Grok…)</span></div>
-      <div class="step"><div class="step-n">3</div><span>Pega cada respuesta en su casilla</span></div>
-      <div class="step"><div class="step-n">4</div><span>Analiza y decide</span></div>
+<!-- ── DOMAIN SELECTOR ── -->
+<div class="domain-bar" id="domainBar"></div>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+  <!-- SETUP BANNER (solo si no hay key) -->
+  <div class="setup-banner" id="setupBanner">
+    <div class="setup-icon">🔑</div>
+    <div class="setup-text" style="flex:1">
+      <h3>Conectar Gemini (auto-síntesis)</h3>
+      <p>Pega tu API key de Gemini para que el Consejo sintetice automáticamente. Gratis en <a href="https://aistudio.google.com" target="_blank" style="color:var(--amber)">aistudio.google.com</a>. Se guarda solo en tu navegador.</p>
+      <div class="setup-input-row">
+        <input type="password" class="setup-input" id="geminiKeyInput" placeholder="AIza...">
+        <button class="btn-save-key" onclick="saveGeminiKey()">Guardar</button>
+      </div>
     </div>
   </div>
-</main>
 
-<div class="input-bar">
-  <div class="input-row">
-    <textarea id="qi" placeholder="¿Qué le preguntas al consejo?" rows="1"
-      oninput="autoResize(this)" onkeydown="handleKey(event)"></textarea>
-    <button class="btn-send" onclick="submitQ()">↑</button>
+  <!-- QUERY -->
+  <div class="query-card">
+    <div class="query-label">Consulta al Consejo</div>
+    <textarea class="query-box" id="queryBox" placeholder="¿Qué quieres que evalúe el Consejo?&#10;Ej: ¿Vale la pena Afnan Rare Reef a este precio versus Aventus?"></textarea>
+    <div class="context-hint" id="contextHint"></div>
   </div>
+
+  <!-- PANELS LABEL -->
+  <div class="panels-label">Panel de IAs</div>
+
+  <!-- PANELS GRID -->
+  <div class="panels-grid" id="panelsGrid"></div>
+
+  <!-- ADD AI -->
+  <button class="add-ai-btn" onclick="openAddModal()">
+    ＋ Agregar IA al panel
+  </button>
+
+  <!-- ACTION BAR -->
+  <div class="action-bar">
+    <button class="btn-primary" id="consultarBtn" onclick="consultar()">⚖ Consultar al Consejo</button>
+    <button class="btn-secondary" onclick="limpiarPanel()">Limpiar</button>
+    <button class="btn-secondary" onclick="copiarTodo()">📋 Copiar todo</button>
+  </div>
+
+  <!-- SYNTHESIS -->
+  <div class="synthesis-card" id="synthesisCard">
+    <div class="synthesis-header">
+      <div class="synthesis-icon">🧠</div>
+      <div class="synthesis-title">Síntesis del Consejo</div>
+      <div class="synthesis-meta" id="synthesisMeta"></div>
+      <button class="copy-btn" onclick="copiarSintesis()">📋 Copiar</button>
+    </div>
+    <div class="synthesis-body">
+      <div class="synthesis-loading" id="synthesisLoading" style="display:none">
+        <span>Sintetizando</span>
+        <span class="dot-blink">●</span><span class="dot-blink">●</span><span class="dot-blink">●</span>
+      </div>
+      <div class="synthesis-text" id="synthesisText"></div>
+      <div class="consensus-bar" id="consensusBar"></div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="history-section" id="historySection">
+    <div class="panels-label" style="margin-bottom:12px">Historial de consultas</div>
+    <div id="historyList"></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="settings-panel" id="settingsPanel">
+    <div class="panels-label" style="margin-bottom:12px">Configuración</div>
+    <div class="settings-row">
+      <div>
+        <div class="settings-label">Síntesis automática</div>
+        <div class="settings-hint">Sintetiza con Gemini al completar respuestas manuales</div>
+      </div>
+      <button class="toggle on" id="autoSynthToggle" onclick="toggleAutoSynth(this)"></button>
+    </div>
+    <div class="settings-row">
+      <div>
+        <div class="settings-label">Guardar historial</div>
+        <div class="settings-hint">Guarda consultas en localStorage</div>
+      </div>
+      <button class="toggle on" id="saveHistoryToggle" onclick="toggleSaveHistory(this)"></button>
+    </div>
+    <div class="settings-row">
+      <div>
+        <div class="settings-label">Modelo de síntesis</div>
+        <div class="settings-hint">Modelo Gemini usado para sintetizar</div>
+      </div>
+      <select class="modal-select" id="synthModel" style="width:auto;font-size:12px" onchange="saveSynthModel()">
+        <option value="gemini-2.5-flash-lite-preview-06-17">Gemini 2.5 Flash Lite</option>
+        <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+        <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+      </select>
+    </div>
+    <div style="margin-top:14px">
+      <button class="btn-secondary" style="font-size:12px" onclick="clearHistory()">🗑 Borrar historial</button>
+      <button class="btn-secondary" style="font-size:12px;margin-left:8px" onclick="resetGeminiKey()">🔑 Cambiar API Key</button>
+    </div>
+  </div>
+
 </div>
 
-<!-- Models modal -->
-<div class="overlay" id="modalsOverlay" onclick="closeMOnBg(event)">
-  <div class="modal" id="modelsModal">
-    <h2>⚙ Modelos del consejo</h2>
-    <div class="model-list" id="modelList"></div>
-    <button class="btn-add-model" onclick="addModelRow()">+ Agregar modelo</button>
-    <div class="modal-row">
-      <button class="btn-secondary" onclick="closeModels()">Cancelar</button>
-      <button class="btn-primary" onclick="saveModels()">Guardar</button>
+<!-- ── ADD AI MODAL ── -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <h3>Agregar IA al panel</h3>
+    <div class="modal-field">
+      <label>Nombre de la IA</label>
+      <input type="text" class="modal-input" id="newAiName" placeholder="Ej: Grok, Perplexity, Gemini Advanced...">
+    </div>
+    <div class="modal-field">
+      <label>Tipo</label>
+      <select class="modal-select" id="newAiType">
+        <option value="manual">Manual (pegar respuesta)</option>
+        <option value="auto">Auto-fetch (si tiene API key)</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>Descripción / perfil (opcional)</label>
+      <input type="text" class="modal-input" id="newAiDesc" placeholder="Ej: Fuerte en razonamiento científico">
+    </div>
+    <div class="modal-field">
+      <label>Peso en el consenso (1–5)</label>
+      <input type="range" min="1" max="5" value="3" class="weight-slider" id="newAiWeight" style="width:100%">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeAddModal()">Cancelar</button>
+      <button class="btn-primary" onclick="addAi()">Agregar</button>
     </div>
   </div>
 </div>
-
-<div class="toast" id="toast"></div>
 
 <script>
-// ── PALETTE ──────────────────────────────────────────────────────────────────
-const PALETTE = ['#c084fc','#22d3ee','#86efac','#fbbf24','#f87171','#60a5fa','#a3e635','#fb923c'];
-let paletteIdx = 0;
-function nextColor() { return PALETTE[paletteIdx++ % PALETTE.length]; }
+// ── STATE ──
+const DOMAINS = [
+  { id: 'fragrance', label: 'Fragancias', emoji: '🧴',
+    hint: 'Arsenal Score, APS, duración, proyección, versatilidad climática (Miami). Marcas: Armaf, Lattafa, Al Haramain, Afnan, Maison Alhambra.',
+    placeholder: '¿Vale la pena Afnan Rare Reef a este precio? Compara con Aventus dupe tier.' },
+  { id: 'supp', label: 'Suplementación', emoji: '💉',
+    hint: 'Protocolo activo: Test C 50mg 2x/sem, Anavar 20mg/d, Retatrutide 50ui 2x/sem, Tadalafil 5mg/d, MB 20mg/sem. Bloodwork: 3 Jul 2026.',
+    placeholder: '¿Debo ajustar dosis de Anavar antes del bloodwork del 3 de julio?' },
+  { id: 'fitness', label: 'Fitness', emoji: '🏋',
+    hint: 'Análisis de entrenamiento, recuperación, periodización, lesiones.',
+    placeholder: '¿Cómo estructurar el mesociclo post-bloodwork para maximizar composición corporal?' },
+  { id: 'finance', label: 'Finanzas', emoji: '💰',
+    hint: 'College savings 529, inversiones, planificación a largo plazo. Miami, FL.',
+    placeholder: '¿Mejor estrategia para el 529 considerando los cambios fiscales de 2026?' },
+  { id: 'tech', label: 'Tech', emoji: '⚡',
+    hint: 'Samsung DeX, Galaxy S23, gadgets, software, setup de productividad.',
+    placeholder: '¿Cuál es el mejor monitor USB-C para usar con DeX en modo escritorio?' },
+  { id: 'gaming', label: 'Gaming', emoji: '🎮',
+    hint: 'Cell Idle Factory Incremental (late game), estrategia, optimización.',
+    placeholder: '¿Qué Construction Milestones priorizar para llegar a e1000 MP?' },
+  { id: 'edu', label: 'Educación', emoji: '📚',
+    hint: 'Magnet schools Miami-Dade, estrategias educativas para el niño.',
+    placeholder: '¿Cómo maximizar las chances en el lottery de Magnet para el próximo ciclo?' },
+  { id: 'general', label: 'General', emoji: '🌐',
+    hint: '',
+    placeholder: '¿Cuál es tu consulta para el Consejo?' },
+];
 
-// ── STATE ─────────────────────────────────────────────────────────────────────
-let models = [];   // {id, name, color}
-let sessions = []; // {id, question, responses:{modelId: text}, analysisText}
-let geminiKey = '';
+let activeDomain = 'fragrance';
+let autoSynth = true;
+let saveHistory = true;
+let synthModel = localStorage.getItem('synthModel') || 'gemini-2.5-flash-lite-preview-06-17';
+let geminiKey = localStorage.getItem('geminiKey') || '';
+let historyVisible = false;
+let settingsVisible = false;
 
-function loadState() {
-  try {
-    const m = localStorage.getItem('council_models');
-    if (m) { models = JSON.parse(m); paletteIdx = models.length; }
-    else setDefaultModels();
-    const s = localStorage.getItem('council_sessions');
-    if (s) sessions = JSON.parse(s);
-    geminiKey = localStorage.getItem('council_gkey') || '';
-  } catch(e) { setDefaultModels(); }
+let panels = [
+  { id: 'claude', name: 'Claude (tú)', type: 'manual', badge: 'manual', desc: 'Sesión actual — Anthropic', weight: 4, value: '' },
+  { id: 'chatgpt', name: 'ChatGPT', type: 'manual', badge: 'manual', desc: 'OpenAI GPT-4o', weight: 4, value: '' },
+  { id: 'gemini', name: 'Gemini', type: 'auto', badge: 'auto', desc: 'Google — auto-fetch si tienes key', weight: 3, value: '' },
+];
+
+// ── INIT ──
+function init() {
+  renderDomains();
+  renderPanels();
+  updateSetupBanner();
+  loadSettings();
+  renderHistory();
+  document.getElementById('synthModel').value = synthModel;
 }
 
-function setDefaultModels() {
-  models = [
-    { id: uid(), name: 'Claude',  color: '#c084fc' },
-    { id: uid(), name: 'ChatGPT', color: '#22d3ee' },
-    { id: uid(), name: 'Grok',    color: '#86efac' },
-  ];
+function loadSettings() {
+  autoSynth = localStorage.getItem('autoSynth') !== 'false';
+  saveHistory = localStorage.getItem('saveHistory') !== 'false';
+  document.getElementById('autoSynthToggle').classList.toggle('on', autoSynth);
+  document.getElementById('saveHistoryToggle').classList.toggle('on', saveHistory);
 }
 
-function saveState() {
-  localStorage.setItem('council_models', JSON.stringify(models));
-  localStorage.setItem('council_sessions', JSON.stringify(sessions));
-}
-
-function uid() { return Math.random().toString(36).slice(2, 9); }
-
-// ── RENDER ────────────────────────────────────────────────────────────────────
-function render() {
-  const main = document.getElementById('main');
-  const empty = document.getElementById('emptyState');
-
-  if (sessions.length === 0) {
-    if (!empty) main.innerHTML = '';
-    return;
-  }
-  if (empty) empty.remove();
-
-  // Rebuild — only add new sessions
-  sessions.forEach(sess => {
-    if (document.getElementById('sess-' + sess.id)) return;
-    main.appendChild(buildSession(sess));
-  });
-}
-
-function buildSession(sess) {
-  const el = document.createElement('div');
-  el.className = 'session';
-  el.id = 'sess-' + sess.id;
-
-  // Question header
-  el.innerHTML = `
-    <div class="session-q">
-      <div class="session-q-label">Pregunta</div>
-      <div class="session-q-text">${esc(sess.question)}</div>
-    </div>
-  `;
-
-  // Copy question button
-  const copyBtn = document.createElement('div');
-  copyBtn.style.cssText = 'padding:8px 15px; border-bottom:1px solid var(--border); display:flex; gap:8px;';
-  copyBtn.innerHTML = `
-    <button class="btn-sm btn-clear-resp" onclick="copyText('${esc(sess.question).replace(/'/g,"\\'")}')">📋 Copiar pregunta</button>
-  `;
-  el.appendChild(copyBtn);
-
-  // Slots for each model
-  models.forEach(m => {
-    el.appendChild(buildSlot(sess, m));
-  });
-
-  // Analyze bar
-  el.appendChild(buildAnalyzeBar(sess));
-
-  // If already has analysis
-  if (sess.analysisText) {
-    el.appendChild(buildAnalysisBlock(sess.analysisText));
-  }
-
-  return el;
-}
-
-function buildSlot(sess, model) {
-  const existing = (sess.responses || {})[model.id] || '';
-  const filled = !!existing;
-
-  const slot = document.createElement('div');
-  slot.className = 'slot';
-  slot.id = `slot-${sess.id}-${model.id}`;
-
-  slot.innerHTML = `
-    <div class="slot-header" onclick="toggleSlot(this)">
-      <div class="slot-left">
-        <span class="model-tag" style="background:${model.color}22; color:${model.color}; border:1px solid ${model.color}44">${esc(model.name)}</span>
-        <span class="slot-status ${filled ? 'filled' : ''}">${filled ? '✓ Respuesta guardada' : 'Pegar respuesta'}</span>
-      </div>
-      <span class="slot-chevron">▼</span>
-    </div>
-    <div class="slot-body">
-      <textarea class="slot-paste-area" placeholder="Pega aquí la respuesta de ${esc(model.name)}…">${esc(existing)}</textarea>
-      <div class="slot-actions">
-        <button class="btn-sm btn-save-resp" onclick="saveResp('${sess.id}','${model.id}',this)">Guardar</button>
-        ${filled ? `<button class="btn-sm btn-clear-resp" onclick="clearResp('${sess.id}','${model.id}',this)">Borrar</button>` : ''}
-      </div>
-    </div>
-  `;
-
-  if (filled) slot.classList.add('open');
-  return slot;
-}
-
-function buildAnalyzeBar(sess) {
-  const div = document.createElement('div');
-  div.className = 'analyze-bar';
-  div.id = `abar-${sess.id}`;
-  div.innerHTML = `
-    <span class="analyze-count" id="acount-${sess.id}">${countResp(sess)} respuesta(s) recibida(s)</span>
-    <button class="btn-analyze" id="abtn-${sess.id}" onclick="analyze('${sess.id}')"
-      ${countResp(sess) < 2 ? 'disabled' : ''}>
-      ⚡ Analizar
+// ── DOMAINS ──
+function renderDomains() {
+  const bar = document.getElementById('domainBar');
+  bar.innerHTML = DOMAINS.map(d => `
+    <button class="domain-pill ${d.id === activeDomain ? 'active' : ''}" onclick="setDomain('${d.id}')">
+      <span class="emoji">${d.emoji}</span>${d.label}
     </button>
-  `;
-  return div;
+  `).join('');
 }
 
-function buildAnalysisBlock(text) {
-  const div = document.createElement('div');
-  div.className = 'analysis-block';
-  div.innerHTML = `
-    <div class="analysis-label">⚡ Análisis comparativo</div>
-    <div class="analysis-text">${esc(text)}</div>
-  `;
-  return div;
-}
-
-function countResp(sess) {
-  return Object.values(sess.responses || {}).filter(Boolean).length;
-}
-
-// ── INTERACTIONS ──────────────────────────────────────────────────────────────
-function toggleSlot(header) {
-  const slot = header.closest('.slot');
-  slot.classList.toggle('open');
-}
-
-function saveResp(sessId, modelId, btn) {
-  const slot = document.getElementById(`slot-${sessId}-${modelId}`);
-  const ta = slot.querySelector('.slot-paste-area');
-  const text = ta.value.trim();
-  if (!text) { showToast('La respuesta está vacía'); return; }
-
-  const sess = sessions.find(s => s.id === sessId);
-  if (!sess.responses) sess.responses = {};
-  sess.responses[modelId] = text;
-  saveState();
-
-  // Update status
-  const status = slot.querySelector('.slot-status');
-  status.textContent = '✓ Respuesta guardada';
-  status.classList.add('filled');
-
-  // Update count & analyze btn
-  updateAnalyzeBar(sess);
-
-  showToast('Guardado ✓');
-}
-
-function clearResp(sessId, modelId, btn) {
-  const slot = document.getElementById(`slot-${sessId}-${modelId}`);
-  const ta = slot.querySelector('.slot-paste-area');
-  ta.value = '';
-
-  const sess = sessions.find(s => s.id === sessId);
-  if (sess.responses) delete sess.responses[modelId];
-  saveState();
-
-  const status = slot.querySelector('.slot-status');
-  status.textContent = 'Pegar respuesta';
-  status.classList.remove('filled');
-
-  updateAnalyzeBar(sess);
-  showToast('Borrado');
-}
-
-function updateAnalyzeBar(sess) {
-  const count = countResp(sess);
-  const countEl = document.getElementById(`acount-${sess.id}`);
-  const btn = document.getElementById(`abtn-${sess.id}`);
-  if (countEl) countEl.textContent = `${count} respuesta(s) recibida(s)`;
-  if (btn) btn.disabled = count < 2;
-}
-
-// ── ANALYZE ───────────────────────────────────────────────────────────────────
-async function analyze(sessId) {
-  const sess = sessions.find(s => s.id === sessId);
-  const btn = document.getElementById(`abtn-${sessId}`);
-  btn.disabled = true;
-  btn.textContent = '⏳ Analizando...';
-
-  // Remove previous analysis if any
-  const sessEl = document.getElementById('sess-' + sessId);
-  const prev = sessEl.querySelector('.analysis-block');
-  if (prev) prev.remove();
-
-  // Build loading block
-  const loading = document.createElement('div');
-  loading.className = 'analysis-block';
-  loading.innerHTML = `
-    <div class="analysis-label">⚡ Análisis comparativo</div>
-    <div class="analysis-loading"><div class="dots"><span></span><span></span><span></span></div> Sintetizando respuestas...</div>
-  `;
-  sessEl.appendChild(loading);
-  loading.scrollIntoView({ behavior: 'smooth', block: 'end' });
-
-  // Build prompt
-  const responsesText = Object.entries(sess.responses || {}).map(([modelId, text]) => {
-    const model = models.find(m => m.id === modelId);
-    return `## ${model ? model.name : modelId}\n${text}`;
-  }).join('\n\n---\n\n');
-
-  const prompt = `Pregunta original: "${sess.question}"\n\nRespuestas de los modelos:\n\n${responsesText}\n\nAnaliza estas respuestas como un consejero neutral. Identifica:\n1. Puntos de acuerdo entre los modelos\n2. Diferencias o contradicciones importantes\n3. Qué perspectiva aporta cada modelo que los otros no tienen\n4. Tu síntesis: qué debería considerar el usuario para tomar una decisión\n\nSé directo y útil. Máximo 350 palabras.`;
-
-  try {
-    const text = await callGemini(prompt);
-    sess.analysisText = text;
-    saveState();
-    loading.innerHTML = `
-      <div class="analysis-label">⚡ Análisis comparativo</div>
-      <div class="analysis-text">${esc(text)}</div>
-    `;
-  } catch(e) {
-    loading.innerHTML = `
-      <div class="analysis-label">⚡ Análisis comparativo</div>
-      <div class="analysis-text" style="color:#f87171">Error al analizar: ${esc(e.message)}\n\nConfigura tu API key de Gemini en ⚙ Modelos para habilitar el análisis automático.</div>
-    `;
+function setDomain(id) {
+  activeDomain = id;
+  renderDomains();
+  const d = DOMAINS.find(x => x.id === id);
+  const qb = document.getElementById('queryBox');
+  qb.placeholder = d.placeholder;
+  const hint = document.getElementById('contextHint');
+  if (d.hint) {
+    hint.textContent = '📌 Contexto inyectado: ' + d.hint;
+    hint.classList.add('show');
+  } else {
+    hint.classList.remove('show');
   }
+}
+
+// ── PANELS ──
+function renderPanels() {
+  const grid = document.getElementById('panelsGrid');
+  grid.innerHTML = panels.map(p => renderPanel(p)).join('');
+}
+
+function renderPanel(p) {
+  const isAuto = p.type === 'auto';
+  return `
+    <div class="ai-card ${p.value ? (isAuto ? 'auto-fetch' : 'has-response') : ''}" id="card-${p.id}">
+      <div class="ai-card-header">
+        <div class="ai-orb ${p.value ? (isAuto ? 'done' : 'manual') : 'idle'}" id="orb-${p.id}"></div>
+        <div class="ai-name">${p.name}</div>
+        <span class="ai-badge badge-${isAuto ? 'auto' : 'manual'}">${isAuto ? 'Auto' : 'Manual'}</span>
+        <button class="copy-btn" onclick="copyPanel('${p.id}')">📋</button>
+        <button class="copy-btn" onclick="removePanel('${p.id}')" title="Quitar">✕</button>
+      </div>
+      <div class="ai-card-body">
+        ${isAuto && !p.value
+          ? `<div class="ai-textarea" style="display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:12px;min-height:110px">
+              Se consultará automáticamente al presionar "Consultar al Consejo"
+             </div>`
+          : `<textarea class="ai-textarea" id="ta-${p.id}" placeholder="Pega aquí la respuesta de ${p.name}..."
+              oninput="updatePanelValue('${p.id}', this.value)">${p.value || ''}</textarea>`
+        }
+        <div class="ai-status" id="status-${p.id}">
+          ${p.desc ? `<span style="color:var(--text-dim)">${p.desc}</span>` : ''}
+        </div>
+        <div class="weight-row">
+          <span class="weight-label">Peso:</span>
+          <input type="range" min="1" max="5" value="${p.weight}" class="weight-slider"
+            oninput="updateWeight('${p.id}', this.value)">
+          <span class="weight-val" id="wv-${p.id}">${p.weight}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function updatePanelValue(id, val) {
+  const p = panels.find(x => x.id === id);
+  if (p) {
+    p.value = val;
+    const orb = document.getElementById(`orb-${id}`);
+    orb.className = 'ai-orb ' + (val ? 'manual' : 'idle');
+    document.getElementById(`card-${id}`).classList.toggle('has-response', !!val);
+  }
+}
+
+function updateWeight(id, val) {
+  const p = panels.find(x => x.id === id);
+  if (p) p.weight = parseInt(val);
+  document.getElementById(`wv-${id}`).textContent = val;
+}
+
+function copyPanel(id) {
+  const p = panels.find(x => x.id === id);
+  if (p && p.value) navigator.clipboard.writeText(p.value);
+}
+
+function removePanel(id) {
+  panels = panels.filter(x => x.id !== id);
+  renderPanels();
+}
+
+// ── ADD AI MODAL ──
+function openAddModal() {
+  document.getElementById('addModal').classList.add('show');
+  document.getElementById('newAiName').focus();
+}
+function closeAddModal() {
+  document.getElementById('addModal').classList.remove('show');
+}
+function addAi() {
+  const name = document.getElementById('newAiName').value.trim();
+  if (!name) return;
+  const type = document.getElementById('newAiType').value;
+  const desc = document.getElementById('newAiDesc').value.trim();
+  const weight = parseInt(document.getElementById('newAiWeight').value);
+  const id = 'ai_' + Date.now();
+  panels.push({ id, name, type, badge: type, desc, weight, value: '' });
+  renderPanels();
+  closeAddModal();
+  document.getElementById('newAiName').value = '';
+  document.getElementById('newAiDesc').value = '';
+}
+
+// ── GEMINI KEY ──
+function updateSetupBanner() {
+  document.getElementById('setupBanner').style.display = geminiKey ? 'none' : 'flex';
+}
+function saveGeminiKey() {
+  const k = document.getElementById('geminiKeyInput').value.trim();
+  if (!k) return;
+  geminiKey = k;
+  localStorage.setItem('geminiKey', k);
+  updateSetupBanner();
+}
+function resetGeminiKey() {
+  geminiKey = '';
+  localStorage.removeItem('geminiKey');
+  updateSetupBanner();
+}
+
+// ── MAIN CONSULT ──
+async function consultar() {
+  const query = document.getElementById('queryBox').value.trim();
+  if (!query) { alert('Escribe una consulta primero.'); return; }
+
+  const domain = DOMAINS.find(d => d.id === activeDomain);
+  const btn = document.getElementById('consultarBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Consultando...';
+
+  // Auto-fetch panels
+  const autoPanels = panels.filter(p => p.type === 'auto');
+  for (const p of autoPanels) {
+    if (!geminiKey) { setStatus(p.id, 'error', 'Sin API key'); continue; }
+    await fetchGemini(p, query, domain);
+  }
+
+  // Check manual panels
+  const manualPanels = panels.filter(p => p.type === 'manual');
+  const hasSomeManual = manualPanels.some(p => p.value.trim());
+
+  if (autoSynth && geminiKey) {
+    await synthesize(query, domain);
+  } else if (!geminiKey) {
+    showSynthesisCard();
+    document.getElementById('synthesisText').textContent = 'Agrega tu API key de Gemini para síntesis automática. O copia las respuestas del panel y síntezalas manualmente.';
+  }
+
+  saveConsult(query, domain);
 
   btn.disabled = false;
-  btn.textContent = '⚡ Re-analizar';
-  loading.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  btn.textContent = '⚖ Consultar al Consejo';
 }
 
-async function callGemini(prompt) {
-  if (!geminiKey) return manualSummary();
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${geminiKey}`;
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { maxOutputTokens: 1024 }
-    })
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(()=>({}));
-    throw new Error(err.error?.message || `HTTP ${res.status}`);
+async function fetchGemini(panel, query, domain) {
+  setOrb(panel.id, 'fetching');
+  setStatus(panel.id, 'fetching', 'Consultando a Gemini...');
+
+  const context = domain.hint ? `\nContexto del usuario: ${domain.hint}` : '';
+  const prompt = `Dominio: ${domain.label}${context}\n\nConsulta: ${query}\n\nResponde de forma concisa, estructurada y útil (máx 300 palabras). Sé directo con tu evaluación y recomendación.`;
+
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${synthModel}:generateContent?key=${geminiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sin respuesta';
+    panel.value = text;
+    // Update textarea
+    const ta = document.getElementById(`ta-${panel.id}`);
+    if (ta) ta.value = text;
+    // If auto panel just got a response, re-render that card properly
+    const cardEl = document.getElementById(`card-${panel.id}`);
+    if (cardEl) {
+      const body = cardEl.querySelector('.ai-card-body');
+      body.innerHTML = `
+        <textarea class="ai-textarea" id="ta-${panel.id}" oninput="updatePanelValue('${panel.id}', this.value)">${text}</textarea>
+        <div class="ai-status done-txt" id="status-${panel.id}">✓ Respuesta recibida</div>
+        <div class="weight-row">
+          <span class="weight-label">Peso:</span>
+          <input type="range" min="1" max="5" value="${panel.weight}" class="weight-slider" oninput="updateWeight('${panel.id}', this.value)">
+          <span class="weight-val" id="wv-${panel.id}">${panel.weight}</span>
+        </div>
+      `;
+    }
+    setOrb(panel.id, 'done');
+  } catch (e) {
+    setOrb(panel.id, 'error');
+    setStatus(panel.id, 'error', 'Error: ' + e.message.substring(0, 60));
   }
-  const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sin respuesta';
 }
 
-function manualSummary() {
-  // Simple local analysis without API
-  return "Para obtener un análisis automático, agrega tu API key de Gemini en ⚙ Modelos.\n\nMientras tanto, compara las respuestas buscando:\n• ¿En qué coinciden todos los modelos?\n• ¿Qué diferencias hay en su enfoque?\n• ¿Algún modelo menciona algo que los otros ignoran?";
+async function synthesize(query, domain) {
+  showSynthesisCard();
+  document.getElementById('synthesisLoading').style.display = 'flex';
+  document.getElementById('synthesisText').textContent = '';
+  document.getElementById('consensusBar').innerHTML = '';
+  document.getElementById('synthesisMeta').textContent = '';
+
+  const responses = panels.filter(p => p.value.trim()).map(p =>
+    `=== ${p.name} (peso: ${p.weight}/5) ===\n${p.value}`
+  ).join('\n\n');
+
+  if (!responses) {
+    document.getElementById('synthesisLoading').style.display = 'none';
+    document.getElementById('synthesisText').textContent = 'No hay respuestas para sintetizar todavía.';
+    return;
+  }
+
+  const context = domain.hint ? `\nContexto del usuario: ${domain.hint}` : '';
+  const prompt = `Eres el sintetizador del Consejo de IA. Tu trabajo es analizar las respuestas de múltiples IAs y producir una síntesis de consenso ponderada.
+
+Dominio: ${domain.label}${context}
+Consulta original: "${query}"
+
+Respuestas del panel (cada una con su peso de confianza):
+${responses}
+
+Produce una síntesis en español con esta estructura EXACTA:
+
+VEREDICTO: [1 línea con la conclusión principal del Consejo]
+
+CONSENSO: [Puntos en los que todas/mayoría de las IAs coinciden]
+
+DIVERGENCIAS: [Donde hay discrepancia significativa — si no hay, omitir]
+
+RECOMENDACIÓN FINAL: [Acción concreta y directa, ponderando los pesos]
+
+SEÑAL DE CONSENSO: [Escribe exactamente uno de: ALTO / MEDIO / BAJO]
+
+Sé conciso, directo y útil. No repitas la consulta. Máx 400 palabras.`;
+
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${synthModel}:generateContent?key=${geminiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sin síntesis';
+
+    document.getElementById('synthesisLoading').style.display = 'none';
+    document.getElementById('synthesisText').textContent = text;
+
+    // Parse consensus signal
+    const signalMatch = text.match(/SEÑAL DE CONSENSO:\s*(ALTO|MEDIO|BAJO)/i);
+    if (signalMatch) {
+      const signal = signalMatch[1].toUpperCase();
+      const tagClass = signal === 'ALTO' ? 'tag-agree' : signal === 'MEDIO' ? 'tag-split' : 'tag-diverge';
+      const tagLabel = signal === 'ALTO' ? '✓ Consenso Alto' : signal === 'MEDIO' ? '⚡ Consenso Medio' : '⚠ Consenso Bajo';
+      document.getElementById('consensusBar').innerHTML = `
+        <span class="consensus-tag ${tagClass}">${tagLabel}</span>
+        <span class="consensus-tag" style="background:var(--surface2);color:var(--text-muted);border:1px solid var(--border)">
+          ${panels.filter(p => p.value).length} IAs consultadas
+        </span>
+        <span class="consensus-tag" style="background:var(--surface2);color:var(--text-muted);border:1px solid var(--border)">
+          ${domain.emoji} ${domain.label}
+        </span>
+      `;
+    }
+    document.getElementById('synthesisMeta').textContent =
+      new Date().toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' });
+
+  } catch (e) {
+    document.getElementById('synthesisLoading').style.display = 'none';
+    document.getElementById('synthesisText').textContent = 'Error en síntesis: ' + e.message;
+  }
 }
 
-// ── SUBMIT QUESTION ───────────────────────────────────────────────────────────
-function submitQ() {
-  const inp = document.getElementById('qi');
-  const q = inp.value.trim();
-  if (!q) return;
-
-  const sess = {
-    id: uid(),
-    question: q,
-    responses: {},
-    analysisText: null
-  };
-  sessions.push(sess);
-  saveState();
-
-  inp.value = '';
-  inp.style.height = 'auto';
-
-  const empty = document.getElementById('emptyState');
-  if (empty) empty.remove();
-
-  const main = document.getElementById('main');
-  const el = buildSession(sess);
-  main.appendChild(el);
-  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-  // Auto-copy question
-  copyText(q);
-  showToast('Pregunta copiada al portapapeles 📋', 2500);
+function showSynthesisCard() {
+  document.getElementById('synthesisCard').classList.add('show');
+  setTimeout(() => document.getElementById('synthesisCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
 }
 
-// ── MODELS MODAL ─────────────────────────────────────────────────────────────
-function openModels() {
-  renderModelList();
-  document.getElementById('modalsOverlay').classList.add('open');
+// ── HELPERS ──
+function setOrb(id, state) {
+  const orb = document.getElementById(`orb-${id}`);
+  if (orb) orb.className = 'ai-orb ' + state;
+  const card = document.getElementById(`card-${id}`);
+  if (card && state === 'done') card.classList.add('auto-fetch');
 }
-function closeModels() {
-  document.getElementById('modalsOverlay').classList.remove('open');
-}
-function closeMOnBg(e) {
-  if (e.target === document.getElementById('modalsOverlay')) closeModels();
+function setStatus(id, type, msg) {
+  const el = document.getElementById(`status-${id}`);
+  if (!el) return;
+  el.className = 'ai-status' + (type === 'fetching' ? ' fetching-txt' : type === 'done' ? ' done-txt' : type === 'error' ? ' error-txt' : '');
+  el.textContent = msg;
 }
 
-function renderModelList() {
-  const list = document.getElementById('modelList');
-  list.innerHTML = '';
+function limpiarPanel() {
+  panels.forEach(p => { p.value = ''; });
+  renderPanels();
+  document.getElementById('synthesisCard').classList.remove('show');
+  document.getElementById('queryBox').value = '';
+}
 
-  // Optionally show API key field
-  const keyRow = document.createElement('div');
-  keyRow.style.cssText = 'margin-bottom:14px;';
-  keyRow.innerHTML = `
-    <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">API Key Gemini (para análisis automático)</div>
-    <div style="display:flex;gap:8px;">
-      <input type="password" id="gkey-input" value="${geminiKey}"
-        placeholder="AIza…"
-        style="flex:1;background:var(--card);border:1px solid var(--border);color:var(--text);font-family:monospace;font-size:12px;padding:8px 10px;border-radius:var(--rs);outline:none;">
+function copiarTodo() {
+  const query = document.getElementById('queryBox').value;
+  const lines = [`CONSULTA: ${query}\n`];
+  panels.forEach(p => {
+    if (p.value) lines.push(`=== ${p.name} ===\n${p.value}\n`);
+  });
+  const synth = document.getElementById('synthesisText').textContent;
+  if (synth) lines.push(`=== SÍNTESIS DEL CONSEJO ===\n${synth}`);
+  navigator.clipboard.writeText(lines.join('\n'));
+}
+
+function copiarSintesis() {
+  const synth = document.getElementById('synthesisText').textContent;
+  if (synth) navigator.clipboard.writeText(synth);
+}
+
+// ── HISTORY ──
+function saveConsult(query, domain) {
+  if (!saveHistory) return;
+  const history = JSON.parse(localStorage.getItem('consiliaHistory') || '[]');
+  history.unshift({
+    query: query.substring(0, 120),
+    domain: domain.label,
+    domainEmoji: domain.emoji,
+    date: new Date().toLocaleString('es'),
+    synthesis: document.getElementById('synthesisText').textContent.substring(0, 300)
+  });
+  localStorage.setItem('consiliaHistory', JSON.stringify(history.slice(0, 30)));
+  renderHistory();
+}
+
+function renderHistory() {
+  const history = JSON.parse(localStorage.getItem('consiliaHistory') || '[]');
+  const list = document.getElementById('historyList');
+  if (!history.length) {
+    list.innerHTML = '<div style="color:var(--text-dim);font-size:13px">No hay consultas guardadas aún.</div>';
+    return;
+  }
+  list.innerHTML = history.map((h, i) => `
+    <div class="history-item" onclick="loadHistory(${i})">
+      <div class="history-domain">${h.domainEmoji} ${h.domain}</div>
+      <div class="history-query">${h.query}</div>
+      <div class="history-date">${h.date}</div>
     </div>
-  `;
-  list.appendChild(keyRow);
-
-  models.forEach((m, i) => {
-    const row = document.createElement('div');
-    row.className = 'model-row';
-    row.dataset.id = m.id;
-    row.innerHTML = `
-      <div class="color-dot" style="background:${m.color}"></div>
-      <input type="text" value="${esc(m.name)}" placeholder="Nombre del modelo">
-      <button class="btn-del" onclick="this.closest('.model-row').remove()">×</button>
-    `;
-    list.appendChild(row);
-  });
+  `).join('');
 }
 
-function addModelRow() {
-  const list = document.getElementById('modelList');
-  const color = PALETTE[paletteIdx++ % PALETTE.length];
-  const row = document.createElement('div');
-  row.className = 'model-row';
-  row.dataset.id = uid();
-  row.innerHTML = `
-    <div class="color-dot" style="background:${color}"></div>
-    <input type="text" placeholder="Nombre del modelo (ej. Gemini)">
-    <button class="btn-del" onclick="this.closest('.model-row').remove()">×</button>
-  `;
-  list.appendChild(row);
-  row.querySelector('input').focus();
+function loadHistory(i) {
+  const history = JSON.parse(localStorage.getItem('consiliaHistory') || '[]');
+  const h = history[i];
+  if (!h) return;
+  document.getElementById('queryBox').value = h.query;
+  if (h.synthesis) {
+    showSynthesisCard();
+    document.getElementById('synthesisText').textContent = h.synthesis;
+    document.getElementById('synthesisLoading').style.display = 'none';
+  }
+  setDomain(DOMAINS.find(d => d.label === h.domain)?.id || 'general');
+  toggleHistory(); // close
 }
 
-function saveModels() {
-  // Save API key
-  geminiKey = (document.getElementById('gkey-input')?.value || '').trim();
-  localStorage.setItem('council_gkey', geminiKey);
-
-  const rows = document.querySelectorAll('#modelList .model-row');
-  const newModels = [];
-  rows.forEach(row => {
-    const name = row.querySelector('input[type="text"]').value.trim();
-    if (!name) return;
-    const existing = models.find(m => m.id === row.dataset.id);
-    newModels.push({
-      id: row.dataset.id || uid(),
-      name,
-      color: existing ? existing.color : PALETTE[newModels.length % PALETTE.length]
-    });
-  });
-
-  if (newModels.length === 0) { showToast('Agrega al menos un modelo'); return; }
-  models = newModels;
-  saveState();
-  closeModels();
-  showToast('Modelos guardados ✓');
-
-  // Re-render sessions
-  document.getElementById('main').innerHTML = '';
-  if (sessions.length === 0) {
-    const empty = document.createElement('div');
-    empty.className = 'empty';
-    empty.id = 'emptyState';
-    empty.innerHTML = `<div class="empty-glyph">⚖️</div><h2>Tu consejo personal</h2><p>Escribe una pregunta para comenzar.</p>`;
-    document.getElementById('main').appendChild(empty);
-  } else {
-    sessions.forEach(sess => {
-      document.getElementById('main').appendChild(buildSession(sess));
-    });
+function clearHistory() {
+  if (confirm('¿Borrar todo el historial?')) {
+    localStorage.removeItem('consiliaHistory');
+    renderHistory();
   }
 }
 
-// ── UTILS ─────────────────────────────────────────────────────────────────────
-function esc(s) {
-  return String(s)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;');
+function toggleHistory() {
+  historyVisible = !historyVisible;
+  document.getElementById('historySection').classList.toggle('show', historyVisible);
+  if (settingsVisible) toggleSettings();
 }
 
-function copyText(text) {
-  navigator.clipboard?.writeText(text).catch(() => {
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    ta.remove();
-  });
+function toggleSettings() {
+  settingsVisible = !settingsVisible;
+  document.getElementById('settingsPanel').classList.toggle('show', settingsVisible);
+  if (historyVisible) toggleHistory();
 }
 
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 110) + 'px';
+function toggleAutoSynth(el) {
+  el.classList.toggle('on');
+  autoSynth = el.classList.contains('on');
+  localStorage.setItem('autoSynth', autoSynth);
 }
 
-function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitQ(); }
+function toggleSaveHistory(el) {
+  el.classList.toggle('on');
+  saveHistory = el.classList.contains('on');
+  localStorage.setItem('saveHistory', saveHistory);
 }
 
-function showToast(msg, dur = 2000) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), dur);
+function saveSynthModel() {
+  synthModel = document.getElementById('synthModel').value;
+  localStorage.setItem('synthModel', synthModel);
 }
 
-// ── BOOT ──────────────────────────────────────────────────────────────────────
-loadState();
-render();
+// ── PWA SERVICE WORKER ──
+if ('serviceWorker' in navigator) {
+  const swCode = `
+    const CACHE = 'consejo-ia-v1';
+    self.addEventListener('install', e => e.waitUntil(
+      caches.open(CACHE).then(c => c.addAll(['/']))
+    ));
+    self.addEventListener('fetch', e => e.respondWith(
+      caches.match(e.request).then(r => r || fetch(e.request))
+    ));
+  `;
+  const blob = new Blob([swCode], { type: 'application/javascript' });
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
+}
+
+// ── START ──
+init();
+setDomain('fragrance');
 </script>
 </body>
 </html>
